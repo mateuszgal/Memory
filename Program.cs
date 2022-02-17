@@ -23,7 +23,7 @@ namespace Memory
             }
             Play();
 
-
+            aaaaa
         }
         public static void Play()
         {
@@ -32,12 +32,12 @@ namespace Memory
             int num_of_pairs;
             Random random = new Random();
             // wybieranie poziomu trudności
-            Console.WriteLine("wybierz poziom trudnosci, 1-easy 2-hard");
+            Console.WriteLine("wybierz poziom trudnosci, 1-easy 2-hard");aaaa
             while (true)
             {
                 string a = Console.ReadLine();
                 if (a.Length > 0)
-                {
+                { //plawecki to chuj
                     if (a[0] == '1')
                     {
                         chances = 10;
