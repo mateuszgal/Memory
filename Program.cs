@@ -20,9 +20,6 @@
         public static void Play()
         {
             DateTime start = DateTime.Now;
-            List<Word> firstRow = new List<Word>();
-            Random random = new Random();
-            List<string> wordsCopy = words;
             int chances;
             int num_of_pairs;
             int level = ChooseLevel();
@@ -37,45 +34,33 @@
                 num_of_pairs = 8;
             }
             // level chosen
-            int maxLengthofWord = 0;
-            for (int i = 0; i < num_of_pairs; i++)
-            {
-                int k = random.Next(wordsCopy.Count());
-                if (wordsCopy[k].Length > maxLengthofWord)
-                {
-                    maxLengthofWord = wordsCopy[k].Length;
-                }
-                Word randomWord = new Word(wordsCopy[k]);
-                firstRow.Add(randomWord);
-                firstRow.Add(new Word(wordsCopy[k]));
-                wordsCopy.RemoveAt(k);
-            }
-            RandomizeList(ref firstRow);
-            foreach (Word word in firstRow)
+
+            List<Word> pairsOfwords = GenerateRandomizedList(num_of_pairs);
+            int maxLengthofWord = LengthOfLongestWord(pairsOfwords);
+            string frame = MakeAFrame(num_of_pairs, maxLengthofWord);
+            foreach (Word word in pairsOfwords)
             {
                 word.ExtendTo(maxLengthofWord);
             }
-            string frame = MakeAFrame(num_of_pairs,maxLengthofWord);
+
             //LOGIC
-            int punkty = 0;
+            int points = 0;
             while (chances > 0)
             {
                 int w1;
                 int w2;
-                Display(frame, firstRow, chances, maxLengthofWord);
+                Display(frame, pairsOfwords, chances, maxLengthofWord);
                 Console.WriteLine("\nEnter the row (A or B) and the column you want to reveal (Example A1)");
-                w1 = AskForCell(0, num_of_pairs, firstRow);
-                firstRow[w1 - 1].Visible = true;
-                Display(frame, firstRow, chances, maxLengthofWord);
+                w1 = AskForCell(0, num_of_pairs, pairsOfwords);
+                Display(frame, pairsOfwords, chances, maxLengthofWord);
                 Console.WriteLine("\nEnter the second word to reveal");
-                w2 = AskForCell(w1, num_of_pairs, firstRow);
-                firstRow[w2 - 1].Visible = true;
-                Display(frame, firstRow, chances, maxLengthofWord);
+                w2 = AskForCell(w1, num_of_pairs, pairsOfwords);
+                Display(frame, pairsOfwords, chances, maxLengthofWord);
 
-                if (firstRow[w1 - 1].Content == firstRow[w2 - 1].Content)
+                if (pairsOfwords[w1 - 1].Content == pairsOfwords[w2 - 1].Content)
                 {
-                    punkty++;
-                    if (punkty == num_of_pairs)
+                    points++;
+                    if (points == num_of_pairs)
                     {
                         break;
                     }
@@ -83,15 +68,15 @@
                 else
                 {
                     chances--;
-                    Display(frame, firstRow, chances, maxLengthofWord);
+                    Display(frame, pairsOfwords, chances, maxLengthofWord);
                     Thread.Sleep(1000);
-                    firstRow[w1 - 1].Visible = false;
-                    firstRow[w2 - 1].Visible = false;
+                    pairsOfwords[w1 - 1].Visible = false;
+                    pairsOfwords[w2 - 1].Visible = false;
 
                 }
             }
 
-            if (punkty == num_of_pairs)
+            if (points == num_of_pairs)
             {
                 Console.Clear();
                 Console.WriteLine("Well done, you won, you have " + chances + " chances left!");
@@ -139,25 +124,6 @@
                 }
             }
         }
-        public static void RandomizeList(ref List<Word> list)
-        {
-            Random random = new Random();
-            List<Word> listCopy = new List<Word>();
-            foreach (Word word in list)
-            {
-                listCopy.Add(word);
-            }
-            while (list.Any())
-            {
-                list.RemoveAt(0);
-            }
-            while (listCopy.Count > 0)
-            {
-                int k = random.Next(listCopy.Count);
-                list.Add(listCopy[k]);
-                listCopy.RemoveAt(k);
-            }
-        }
         public static int AskForCell(int previousCell, int numOfPairs, List<Word> list)
         {
             int x = 0;
@@ -182,6 +148,7 @@
                         {
                             if (!list[x - 1].Visible)
                             {
+                                list[x - 1].Visible = true;
                                 return x;
                             }
                         }
@@ -206,6 +173,7 @@
                         {
                             if (!list[x + numOfPairs - 1].Visible)
                             {
+                                list[x + numOfPairs - 1].Visible=true;
                                 return x + numOfPairs;
                             }
                         }
@@ -311,6 +279,49 @@
                     Console.WriteLine("Type answear");
                 }
             }
+        }
+        public static List<Word> GenerateRandomizedList(int pairs)
+        {
+            Random random = new Random();
+            List<Word> listOfwords = new List<Word>();
+            List<string> wordsCopy = words;
+            for (int i = 0; i < pairs; i++)
+            {
+                int k = random.Next(wordsCopy.Count());
+                Word randomWord = new Word(wordsCopy[k]);
+                listOfwords.Add(randomWord);
+                listOfwords.Add(new Word(wordsCopy[k]));
+                wordsCopy.RemoveAt(k);
+            }
+            List<Word> listCopy = new List<Word>();
+            foreach (Word word in listOfwords)
+            {
+                listCopy.Add(word);
+            }
+            while (listOfwords.Any())
+            {
+                listOfwords.RemoveAt(0);
+            }
+            while (listCopy.Count > 0)
+            {
+                int k = random.Next(listCopy.Count);
+                listOfwords.Add(listCopy[k]);
+                listCopy.RemoveAt(k);
+            }
+            return listOfwords;
+        }
+        public static int LengthOfLongestWord(List<Word> list)
+        {
+            int max=0;
+            foreach(Word word in list)
+            {
+                if(word.Content.Length > max)
+                {
+                    max = word.Content.Length;
+                }
+            }
+            return max;
+
         }
 
     }
