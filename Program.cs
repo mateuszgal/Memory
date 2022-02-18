@@ -13,38 +13,57 @@
             {
                 words.Add(plik.ReadLine());
             }
+            plik.Close();
             Play();
 
 
         }
         public static void Play()
-        {
+        {               
+            List<Result> highscoresEasy = new List<Result>();
+            List<Result> highscoresHard = new List<Result>();
+            StreamReader file;
+            file = File.OpenText("C:\\Users\\Admin\\source\\repos\\Memory\\Data\\Highscores.txt");
+            while (!file.EndOfStream)
+            {
+               string[] table= file.ReadLine().Split('|');
+                Result a = new Result(table);
+                if (a.Level == "easy")
+                {
+                    highscoresEasy.Add(a);
+                }
+                else
+                {
+                    highscoresHard.Add(a);
+                }
+            }
+            file.Close();
+
             DateTime start = DateTime.Now;
             int chances;
             int num_of_pairs;
             int level = ChooseLevel();
+            string levelName;
             if (level == 1)
             {
                 chances = 8;
                 num_of_pairs = 4;
+                levelName = "easy";
             }
             else
             {
                 chances = 15;
                 num_of_pairs = 8;
+                levelName = "hard";
             }
-            // level chosen
+            // level is chosen
 
             List<Word> pairsOfwords = GenerateRandomizedList(num_of_pairs);
             int maxLengthofWord = LengthOfLongestWord(pairsOfwords);
             string frame = MakeAFrame(num_of_pairs, maxLengthofWord);
-            foreach (Word word in pairsOfwords)
-            {
-                word.ExtendTo(maxLengthofWord);
-            }
-
             //LOGIC
             int points = 0;
+            int tries = 0;
             while (chances > 0)
             {
                 int w1;
@@ -56,7 +75,7 @@
                 Console.WriteLine("\nEnter the second word to reveal");
                 w2 = AskForCell(w1, num_of_pairs, pairsOfwords);
                 Display(frame, pairsOfwords, chances, maxLengthofWord);
-
+                tries++;
                 if (pairsOfwords[w1 - 1].Content == pairsOfwords[w2 - 1].Content)
                 {
                     points++;
@@ -80,16 +99,37 @@
             {
                 Console.Clear();
                 Console.WriteLine("Well done, you won, you have " + chances + " chances left!");
+                DateTime end = DateTime.Now;
+                TimeSpan time = end - start;
+                Console.WriteLine("It took you: " + (double)(time.TotalMilliseconds) / 1000 + " seconds");
+                DateOnly date = DateOnly.FromDateTime(DateTime.Now);
+                string name = AskForName();
+                Result result = new Result(name, date, time.TotalMilliseconds, tries, levelName);
+                if (level == 1)
+                {
+                    CheckIfHighscore(result, ref highscoresEasy);
+                    DisplayHighscores(highscoresEasy);
+                }
+                else
+                {
+                    CheckIfHighscore(result, ref highscoresHard);
+                    DisplayHighscores(highscoresHard);
+                }
             }
             else
             {
                 Console.Clear();
                 Console.WriteLine("You lose");
+                if (level == 1)
+                {
+                    DisplayHighscores(highscoresEasy);
+                }
+                else
+                {
+                    DisplayHighscores(highscoresHard);
+                }
             }
-            DateTime end = DateTime.Now;
-            TimeSpan time = end- start;
-            
-            Console.WriteLine("It took you: "+ (double)(time.TotalMilliseconds)/1000 +" seconds");
+            SaveHighscores(highscoresEasy,highscoresHard);
             if (AskForPlayingAgain())
             {
                 Play();
@@ -195,28 +235,22 @@
         }
         public static void Display(string frame, List<Word> list, int chances, int maxLengthofWord)
         {
-            string mask = "";
             int i = 0;
-            while (i < maxLengthofWord)
-            {
-                mask += "X";
-                i++;
-            }
+
             Console.Clear();
             Console.WriteLine("You have " + chances + " chances left!"+"\n");
             Console.Write(frame+"\n");
             Console.Write("A ");
-            i = 0;
             while (i < (list.Count() / 2))
             {
 
                 if (list[i].Visible)
                 {
-                    Console.Write(list[i].Content + " ");
+                    Console.Write(list[i].Content.PadRight(maxLengthofWord,' ') + " ");
                 }
                 else
                 {
-                    Console.Write(mask + " ");
+                    Console.Write("X".PadRight(maxLengthofWord, 'X') + " ");
                 }
                 i++;
             }
@@ -227,11 +261,11 @@
 
                 if (list[i].Visible)
                 {
-                    Console.Write(list[i].Content + " ");
+                    Console.Write(list[i].Content.PadRight(maxLengthofWord, ' ') + " ");
                 }
                 else
                 {
-                    Console.Write(mask + " ");
+                    Console.Write("X".PadRight(maxLengthofWord, 'X') + " ");
                 }
                 i++;
             }
@@ -322,6 +356,85 @@
             }
             return max;
 
+        }
+        public static string AskForName()
+        {
+            string name = "";
+            Console.WriteLine("What's your name?");
+            while (true)
+            {
+                name = Console.ReadLine();
+                if (!String.IsNullOrEmpty(name))
+                {
+                    return name;
+                }
+                Console.WriteLine("Try again");
+
+
+            }
+        }
+        public static void CheckIfHighscore(Result result, ref List<Result> highscore) 
+        {
+            int i = 0;
+            while(i < highscore.Count())
+            {
+                if (result.Time<highscore[i].Time)
+                {
+                    break;
+                }
+                i++;
+            }
+            if (highscore.Count > 10) {
+                highscore.Insert(i, result);
+                highscore.RemoveAt(highscore.Count() - 1);
+            }
+            else
+            {
+                highscore.Insert(i, result);
+            }
+            
+        }
+        public static void DisplayHighscores(List<Result> highscores)
+        {
+            int maxName=4;
+            int maxDate=4;
+            int maxTime=4;
+            int maxTries=5;
+            foreach (Result result in highscores)
+            {
+                if (result.NameOfplayer.Length > maxName)
+                {
+                    maxName = result.NameOfplayer.Length;
+                }
+                if (result.DateOfresult.ToString().Length > maxDate)
+                {
+                    maxDate=result.DateOfresult.ToString().Length;
+                }
+                if ((result.Time/1000).ToString().Length > maxTime) 
+                { 
+                    maxTime = (result.Time/1000).ToString().Length;
+                }
+            }
+            Console.WriteLine("Name".PadRight(maxName, ' ') + "|"+"date".PadRight(maxDate, ' ') + "|"+"time".PadRight(maxTime, ' ') + "|"+"tries");
+            foreach(Result result in highscores)
+            {
+                Console.WriteLine(result.NameOfplayer.PadRight(maxName, ' ') + "|" + result.DateOfresult.ToString().PadRight(maxDate, ' ') + "|" + ((result.Time)/1000).ToString().PadRight(maxTime, ' ') + "|" + result.Tries.ToString().PadRight(maxTries, ' ') + '|' + result.Level);
+            }
+            Console.Write("\n");
+
+        }
+        public static void SaveHighscores(List<Result> highscores1,List<Result> highscores2 )
+        {
+            using StreamWriter file = new("C:\\Users\\Admin\\source\\repos\\Memory\\Data\\Highscores.txt");
+            foreach(Result result in highscores1)
+            {
+                file.WriteLine(result.NameOfplayer + "|" + result.DateOfresult.ToString() + "|" + result.Time + "|" + result.Tries + '|' + result.Level);
+            }
+            foreach (Result result in highscores2)
+            {
+                file.WriteLine(result.NameOfplayer + "|" + result.DateOfresult.ToString() + "|" + result.Time + "|" + result.Tries + '|' + result.Level);
+            }
+            file.Close();
         }
 
     }

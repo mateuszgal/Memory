@@ -21,14 +21,6 @@
             content = text;
             Visible = false;
         }
-        public void ExtendTo(int x) 
-        {
-            while (Content.Length < x)
-            {
-                Content += ' ';
-            }
-        }
-
     }
 
 }
