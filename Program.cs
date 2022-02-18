@@ -19,6 +19,7 @@
         }
         public static void Play()
         {
+            DateTime start = DateTime.Now;
             List<Word> firstRow = new List<Word>();
             Random random = new Random();
             List<string> wordsCopy = words;
@@ -36,7 +37,6 @@
                 num_of_pairs = 8;
             }
             // level chosen
-            // 
             int maxLengthofWord = 0;
             for (int i = 0; i < num_of_pairs; i++)
             {
@@ -55,7 +55,7 @@
             {
                 word.ExtendTo(maxLengthofWord);
             }
-            string[] frame = MakeAFrame(num_of_pairs,maxLengthofWord);
+            string frame = MakeAFrame(num_of_pairs,maxLengthofWord);
             //LOGIC
             int punkty = 0;
             while (chances > 0)
@@ -63,12 +63,11 @@
                 int w1;
                 int w2;
                 Display(frame, firstRow, chances, maxLengthofWord);
-                Console.WriteLine("");
-                Console.WriteLine(" Enter the row (A or B) and the column you want to reveal (Example A1)");
+                Console.WriteLine("\nEnter the row (A or B) and the column you want to reveal (Example A1)");
                 w1 = AskForCell(0, num_of_pairs, firstRow);
                 firstRow[w1 - 1].Visible = true;
                 Display(frame, firstRow, chances, maxLengthofWord);
-                Console.WriteLine("Enter the second word to reveal");
+                Console.WriteLine("\nEnter the second word to reveal");
                 w2 = AskForCell(w1, num_of_pairs, firstRow);
                 firstRow[w2 - 1].Visible = true;
                 Display(frame, firstRow, chances, maxLengthofWord);
@@ -102,13 +101,15 @@
                 Console.Clear();
                 Console.WriteLine("You lose");
             }
+            DateTime end = DateTime.Now;
+            TimeSpan time = end- start;
+            
+            Console.WriteLine("It took you: "+ (double)(time.TotalMilliseconds)/1000 +" seconds");
             if (AskForPlayingAgain())
             {
                 Play();
             }
         }
-
-
         public static int ChooseLevel()
         {
             Random random = new Random();
@@ -117,7 +118,7 @@
             {
                 string a = Console.ReadLine();
                 if (a.Length > 0)
-                { //plawecki to chuj
+                { 
                     if (a[0] == '1')
                     {
                         return 1;
@@ -163,7 +164,7 @@
             while (true)
             {
                 string answear = Console.ReadLine();
-                answear.ToUpper();
+                answear = answear.ToUpper();
                 if (String.IsNullOrEmpty(answear))
                 {
                     Console.WriteLine("Try again");
@@ -222,13 +223,9 @@
                 {
                     Console.WriteLine("Try again");
                 }
-
             }
-
-
-            return 4;
         }
-        public static void Display(string[] frame, List<Word> list, int chances, int maxLengthofWord)
+        public static void Display(string frame, List<Word> list, int chances, int maxLengthofWord)
         {
             string mask = "";
             int i = 0;
@@ -238,14 +235,8 @@
                 i++;
             }
             Console.Clear();
-            Console.WriteLine("You have " + chances + " chances left!");
-            Console.WriteLine("");
-            Console.Write("  ");
-            foreach (String piece in frame)
-            {
-                Console.Write(piece + " ");
-            }
-            Console.WriteLine("");
+            Console.WriteLine("You have " + chances + " chances left!"+"\n");
+            Console.Write(frame+"\n");
             Console.Write("A ");
             i = 0;
             while (i < (list.Count() / 2))
@@ -261,8 +252,8 @@
                 }
                 i++;
             }
-            Console.WriteLine("");
-            Console.Write("B ");
+
+            Console.Write("\nB ");
             while (i < list.Count())
             {
 
@@ -278,23 +269,23 @@
             }
 
         }
-        public static string[] MakeAFrame(int num_of_pairs, int maxLengthofWord)
-        {   string[] frame = new string[num_of_pairs];
+        public static string MakeAFrame(int num_of_pairs, int maxLengthofWord)
+        {   string frame = "  ";
             for (int i = 1; i <= num_of_pairs; i++)
             {
 
-                frame[i - 1] = i + "";
+                frame  += i + " ";
                 for (int j = 0; j < maxLengthofWord - 1; j++)
                 {
 
-                    frame[i - 1] = frame[i - 1] + " ";
+                    frame += " ";
                 }
             }
             return frame;
         }
         public static bool  AskForPlayingAgain()
         {
-            Console.WriteLine("Chcesz zgarać ponownie? wpisz Y(yes) lub N(no)");
+            Console.WriteLine("Do you want to play again? Type Y for Yes or N for No");
             string b;
             while (true)
             {
@@ -312,12 +303,12 @@
                     }
                     else
                     {
-                        Console.WriteLine("Podaj odpowiedź");
+                        Console.WriteLine("Type answear");
                     }
                 }
                 else
                 {
-                    Console.WriteLine("podaj odpowiedź");
+                    Console.WriteLine("Type answear");
                 }
             }
         }

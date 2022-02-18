@@ -3,14 +3,25 @@
     class Word
     {
 
-        public bool Visible { get; set; }
-        public string Content { get; set; }
+        private bool visible;
+        private string content;
+
+        public bool Visible
+        {
+            get { return visible; }
+            set { visible = value; }
+        }
+        public string Content
+        {
+            get { return content; } 
+            set { content = value; }
+        }
         public Word(string text)
         {
-            Content = text;
+            content = text;
             Visible = false;
         }
-        public void ExtendTo(int x)
+        public void ExtendTo(int x) 
         {
             while (Content.Length < x)
             {
