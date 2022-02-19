@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Memory": {
+      "commandName": "Project",
+      "workingDirectory": "C:\\Users\\Admin\\source\\repos\\Memory"
+    }
+  }
+}

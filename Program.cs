@@ -8,7 +8,7 @@
         {
             StreamReader plik;
             Random random = new Random();
-            plik = File.OpenText("C:\\Users\\Admin\\source\\repos\\Memory\\Data\\Words.txt");
+            plik = File.OpenText("Data\\Words.txt");
             while (!plik.EndOfStream)
             {
                 words.Add(plik.ReadLine());
@@ -23,7 +23,7 @@
             List<Result> highscoresEasy = new List<Result>();
             List<Result> highscoresHard = new List<Result>();
             StreamReader file;
-            file = File.OpenText("C:\\Users\\Admin\\source\\repos\\Memory\\Data\\Highscores.txt");
+            file = File.OpenText("Data\\Highscores.txt");
             while (!file.EndOfStream)
             {
                string[] table= file.ReadLine().Split('|');
@@ -191,6 +191,10 @@
                                 list[x - 1].Visible = true;
                                 return x;
                             }
+                            else
+                            {
+                                Console.WriteLine("This field has already been exposed");
+                            }
                         }
                         else
                         {
@@ -215,6 +219,10 @@
                             {
                                 list[x + numOfPairs - 1].Visible=true;
                                 return x + numOfPairs;
+                            }
+                            else
+                            {
+                                Console.WriteLine("This field has already been exposed");
                             }
                         }
                         else
@@ -384,7 +392,7 @@
                 }
                 i++;
             }
-            if (highscore.Count > 10) {
+            if (highscore.Count >= 10) {
                 highscore.Insert(i, result);
                 highscore.RemoveAt(highscore.Count() - 1);
             }
@@ -425,7 +433,7 @@
         }
         public static void SaveHighscores(List<Result> highscores1,List<Result> highscores2 )
         {
-            using StreamWriter file = new("C:\\Users\\Admin\\source\\repos\\Memory\\Data\\Highscores.txt");
+            using StreamWriter file = new("Data\\Highscores.txt");
             foreach(Result result in highscores1)
             {
                 file.WriteLine(result.NameOfplayer + "|" + result.DateOfresult.ToString() + "|" + result.Time + "|" + result.Tries + '|' + result.Level);
